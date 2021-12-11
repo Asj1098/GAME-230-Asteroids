@@ -107,4 +107,8 @@ public:
 	{
 		return orientationAngle;
 	}
+	virtual sf::Vector2f getPositionR()
+	{
+		return sf::Vector2f(shape.getPosition().x + (radius * 2), shape.getPosition().y + (radius * 2));
+	}
 };

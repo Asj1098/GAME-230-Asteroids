@@ -8,6 +8,7 @@ public:
 	float radius;
 	sf::Vector2f inititalPosition;
 	int size = 3;
+	float collisionIgnoreTimer = 0.0f;
 
 	Asteroid(float _radius, sf::Vector2f _position, float _speed, sf::Vector2f _direction, sf::Vector2u _window_size, int _size)
 	{
@@ -21,11 +22,13 @@ public:
 		radius = _radius;
 		type = GameObjectType::Asteroid;
 		size = _size;
-
+		collisionIgnoreTimer = 0.6f;
 	}
 
 	virtual void update(float delta_time)
 	{
+		if (collisionIgnoreTimer > 0)
+			collisionIgnoreTimer -= delta_time;
 		sf::Vector2f position = shape.getPosition();
 		position.x += direction.x * speed * delta_time;
 		position.y += direction.y * speed * delta_time;
@@ -56,6 +59,10 @@ public:
 	{
 		return shape.getPosition();
 	}
+	virtual sf::Vector2f getPositionR()
+	{
+		return sf::Vector2f(shape.getPosition().x + (radius * 2), shape.getPosition().y + (radius * 2));
+	}
 	virtual bool checkCollisionWith(GameObject* obj)
 	{
 		return(shape.getGlobalBounds().intersects(obj->getGlobalBounds()));
@@ -70,6 +77,9 @@ public:
 			isVisible = false;
 		else if (t == GameObjectType::Asteroid)
 		{
+			if (collisionIgnoreTimer > 0)
+				return;
+			collisionIgnoreTimer = 0.6f;
 			direction.x = -direction.x;
 			direction.y = -direction.y;
 		}

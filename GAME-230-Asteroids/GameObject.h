@@ -22,6 +22,7 @@ public:
 	virtual void draw(sf::RenderWindow& window) = 0;
 	virtual sf::Vector2f getCenter() = 0;
 	virtual sf::Vector2f getPosition() = 0;
+	virtual sf::Vector2f getPositionR() = 0;
 	virtual bool checkCollisionWith(GameObject* obj) = 0;
 	virtual sf::FloatRect getGlobalBounds() = 0;
 	virtual void handleCollision(GameObjectType t) = 0;

@@ -56,6 +56,10 @@ public:
 	{
 		return shape.getPosition();
 	}
+	virtual sf::Vector2f getPositionR()
+	{
+		return sf::Vector2f(shape.getPosition().x + (radius * 2), shape.getPosition().y + (radius * 2));
+	}
 	virtual bool checkCollisionWith(GameObject* obj)
 	{
 		return(shape.getGlobalBounds().intersects(obj->getGlobalBounds()));

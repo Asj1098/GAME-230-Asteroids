@@ -252,6 +252,13 @@ int main()
     score_text.setFillColor(sf::Color::Yellow);
     score_text.setPosition(sf::Vector2f(window.getSize().x * 0.75f, 50.0f));
 
+    sf::Text level_text;
+    level_text.setFont(font);
+    level_text.setString("Level: 1");
+    level_text.setCharacterSize(70.0f);
+    level_text.setFillColor(sf::Color::Red);
+    level_text.setPosition(sf::Vector2f(window.getSize().x * 0.4f, 50.0f));
+
     sf::Text lives_text;
     lives_text.setFont(font);
     lives_text.setString("Lives: 3");
@@ -341,11 +348,14 @@ int main()
     GameState gameState = GameState::Menu;
     bool spacePressed = false;
     bool playthrust = false;
+    int level = 1;
     //Restart
 RESTART:
     gameState = GameState::Menu;
     game_text.setString("Asteroids\n\nPress Space to Play\nPress Q to Exit");
     ship->reset();
+    level = 1;
+    level_text.setString("Level: 1");
 
     score = 0;
     score_text.setString("0");
@@ -353,6 +363,9 @@ RESTART:
     asteroidSpeed = 80.0f;
     largeAsteroidCount = 4;
     playthrust = false;
+
+    music_buffer.stop();
+    thrust_sound.stop();
 
 LEVELUP:
     spacePressed = false;    
@@ -463,8 +476,17 @@ LEVELUP:
                 {
                     if (!objects[i]->isVisible)
                         continue;
-                    sf::Vector2i bp = getBucket(objects[i]->getCenter());
-                    bucket_add(bp, objects[i]);
+                    //sf::Vector2i bp = getBucket(objects[i]->getCenter());
+                    sf::Vector2i bp = getBucket(objects[i]->getPosition());
+                    sf::Vector2i bpr = getBucket(objects[i]->getPositionR());
+                    //bucket_add(bp, objects[i]);
+
+                    //Add to multiple buckets incase object is on edge of two or more buckets
+                    for (int k = bp.x; k <= bpr.x; k++)
+                    {
+                        for (int l = bp.y; l <= bpr.y; l++)
+                            bucket_add(sf::Vector2i(k, l), objects[i]);
+                    }
                 }
                 for (int i = 0; i < ROWS; i++)
                 {
@@ -490,10 +512,13 @@ LEVELUP:
 
             if (levelup)
             {
+                levelup = false;
                 win_sound.play();
                 asteroidSpeed += 80.0f;
                 asteroidRadius += 30.0f;
                 largeAsteroidCount++;
+                level++;
+                level_text.setString("Level: " + std::to_string(level));
                 if (largeAsteroidCount > 7)
                     largeAsteroidCount = 7;
                 goto LEVELUP;
@@ -513,6 +538,7 @@ LEVELUP:
             score_text.setString("Score: " + std::to_string(score));
             window.draw(score_text);
             window.draw(lives_text);
+            window.draw(level_text);
             window.display();
 
             continue;
@@ -524,8 +550,11 @@ LEVELUP:
                 gameState = GameState::Menu;
                 goto RESTART;
             }
+            music_buffer.stop();
+            thrust_sound.stop();
             game_text.setString("GAME OVER!\n\nPress Enter\nto go to Menu");
             window.draw(game_text);
+            window.draw(level_text);
             score_text.setString("Score: " + std::to_string(score));
             window.draw(score_text);
             window.display();
